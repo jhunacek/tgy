@@ -204,8 +204,7 @@
 .equ	DEBUG_ADC_DUMP	= 0	; Output an endless loop of all ADC values (no normal operation)
 .equ	MOTOR_DEBUG	= 0	; Output sync pulses on MOSI or SCK, debug flag on MISO
 
-.equ	I2C_ADDR	= 0x28	; MK-style I2C address
-.equ	MOTOR_ID	= 1	; MK-style I2C motor ID, or UART motor number
+.equ	I2C_ADDR	= 0x29	; MK-style I2C address base minus MOTOR_ID
 
 .equ	RCP_TOT		= 2	; Number of 65536us periods before considering rc pulse lost
 

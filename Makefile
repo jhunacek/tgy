@@ -8,6 +8,8 @@ SHELL = /bin/bash
 ALL_TARGETS = afro.hex afro2.hex afro_hv.hex afro_nfet.hex arctictiger.hex birdie70a.hex blueesc.hex bs_nfet.hex bs.hex bs40a.hex dlu40a.hex dlux.hex dys_nfet.hex hk200a.hex hm135a.hex hxt200a.hex jrhdrone.hex kda.hex kda_8khz.hex kda_nfet.hex kda_nfet_ni.hex mkblctrl1.hex rb50a.hex rb70a.hex rb70a2.hex rct50a.hex tbs.hex tbs_hv.hex tp.hex tp_8khz.hex tp_i2c.hex tp_nfet.hex tp70a.hex tgy6a.hex tgy_8mhz.hex tgy.hex
 AUX_TARGETS = afro_pr0.hex afro_pr1.hex diy0.hex
 
+MOTOR_ID?= 0	# MK-style I2C motor ID, or UART motor number
+
 all: $(ALL_TARGETS)
 
 $(ALL_TARGETS): tgy.asm boot.inc
@@ -15,8 +17,8 @@ $(AUX_TARGETS): tgy.asm boot.inc
 
 .inc.hex:
 	@test -e $*.asm || ln -s tgy.asm $*.asm
-	@echo "$(ASM) -fI -o $@ -D $*_esc -e $*.eeprom -d $*.obj $*.asm"
-	@set -o pipefail; $(ASM) -fI -o $@ -D $*_esc -e $*.eeprom -d $*.obj $*.asm 2>&1 | sed '/PRAGMA directives currently ignored/d'
+	@echo "$(ASM) -fI -o $@ -D $*_esc -D MOTOR_ID=$(MOTOR_ID) -e $*.eeprom -d $*.obj $*.asm"
+	@set -o pipefail; $(ASM) -fI -o $@ -D $*_esc -D MOTOR_ID=$(MOTOR_ID) -e $*.eeprom -d $*.obj $*.asm 2>&1 | sed '/PRAGMA directives currently ignored/d'
 	@test -L $*.asm && rm -f $*.asm || true
 
 test: all

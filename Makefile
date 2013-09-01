@@ -81,3 +81,13 @@ read_dapa:
 
 read_uisp:
 	uisp -dprog=dapa --download -v of=flash.hex
+
+build_8:
+	for MOTOR_ID in 0 1 2 3 4 5 6 7; do \
+		make clean; \
+		export MOTOR_ID; \
+		make all || exit -1; \
+		for target in $(ALL_TARGETS); do \
+			mv "$$target" "$$target".$$MOTOR_ID || exit -1; \
+		done; \
+	done

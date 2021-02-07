@@ -204,7 +204,8 @@
 .equ	DEBUG_ADC_DUMP	= 0	; Output an endless loop of all ADC values (no normal operation)
 .equ	MOTOR_DEBUG	= 0	; Output sync pulses on MOSI or SCK, debug flag on MISO
 
-.equ	I2C_ADDR	= 0x10	; MK-style I2C address base minus MOTOR_ID
+;~ .equ	I2C_ADDR	= 0x29	; MK-style I2C address base minus MOTOR_ID
+.equ	I2C_ADDR	= 0x10	; I2C address base
 
 .equ	RCP_TOT		= 2	; Number of 65536us periods before considering rc pulse lost
 
@@ -392,7 +393,7 @@ low_brake_l:	.byte	1	; Low brake position with deadband applied
 low_brake_h:	.byte	1
 .endif
 .if USE_I2C
-i2c_max_pwm:	.byte	1	; MaxPWM for MK (NOTE: 250 while stopped is magic and enables v2)
+i2c_next_tx:	.byte	1	; Next byte to transfer
 i2c_rx_state:	.byte	1
 i2c_blc_offset:	.byte	1
 .endif
@@ -1655,17 +1656,22 @@ i2c_io_error:	ldi	i_temp1, (1<<TWIE)|(1<<TWEN)|(1<<TWSTO)|(1<<TWEA)|(1<<TWINT)
 
 i2c_tx_init:	sbrc	rx_l, 7			; BLConfig struct requested?
 		rjmp	i2c_tx_blconfig
-		out	TWDR, ZH		; Send 0 as Current (dummy)
+		;~ out	TWDR, ZH		; Send 0 as Current (dummy)
+		lds	i_temp1, com_count_h
+		out	TWDR, i_temp1		; Send the high byte of the commutation counter instead of the current, which we don't have anyway
 		ldi	i_temp1, 250		; Prepare MaxPWM value (250 when stopped enables MK BL-Ctrl proto v2)
 		sbrc	flags1, POWER_ON
-i2c_tx_datarep:	ldi	i_temp1, 255		; Send MaxPWM 255 when running (and repeat for Temperature)
-		sts	i2c_max_pwm, i_temp1
+		ldi	i_temp1, 255		; Send MaxPWM 255 when running
+		sts	i2c_next_tx, i_temp1
 		rjmp	i2c_ack
+		
 i2c_tx_data:	sbrc	rx_l, 7			; BLConfig struct requested?
 		rjmp	i2c_tx_blconfig1
-		lds	i_temp1, i2c_max_pwm	; MaxPWM value (has special meaning for MK)
+		lds	i_temp1, i2c_next_tx	; MaxPWM value (has special meaning for MK)
 		out	TWDR, i_temp1
-		rjmp	i2c_tx_datarep		; Send 255 for Temperature for which we should get a NACK (0xc0)
+		lds	i_temp1, com_count_l	; Instead of the temperature, which we don't know, queue up to send the low byte of the commutation counter next time i2c_tx_data is called
+		sts	i2c_next_tx, i_temp1
+		rjmp	i2c_ack
 
 i2c_tx_blconfig:
 		ldi	i_temp1, blc_revision	; First BLConfig structure member

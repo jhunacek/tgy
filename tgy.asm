@@ -397,6 +397,8 @@ i2c_rx_state:	.byte	1
 i2c_blc_offset:	.byte	1
 .endif
 motor_count:	.byte	1	; Motor number for serial control
+com_count_l:	.byte	1	; Commutations count since last serial read
+com_count_h:	.byte	1
 brake_sub:	.byte	1	; Brake speed subtrahend (power of two)
 brake_want:	.byte	1	; Type of brake desired
 brake_active:	.byte	1	; Type of brake active
@@ -3790,6 +3792,14 @@ run6:
 		sbrs	flags1, POWER_ON
 		breq	run_to_brake
 		.endif
+		; Increment the revolution counter atomically
+		cli
+		lds	temp1, com_count_l
+		lds	temp2, com_count_h
+		adiw	temp1, 1
+		sts	com_count_l, temp1
+		sts	com_count_h, temp2
+		sei
 		movw	YL, sys_control_l	; Each time TIMING_MAX is hit, sys_control is lsr'd
 		adiw	YL, 0			; If zero, try starting over (with powerskipping)
 		breq	restart_run

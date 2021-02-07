@@ -23,8 +23,11 @@ $(AUX_TARGETS): tgy.asm boot.inc
 
 test: all
 
-clean:
-	-rm -f $(ALL_TARGETS) *.cof *.obj *.eep.hex *.eeprom *.hex.*
+clean_solo:
+	-rm -f $(ALL_TARGETS) *.cof *.obj *.eep.hex *.eeprom
+
+clean: clean_solo
+	-rm -f *.hex.*
 
 binary_zip: $(ALL_TARGETS)
 	TARGET="tgy_`date '+%Y-%m-%d'`_`git rev-parse --verify --short HEAD`"; \
@@ -84,7 +87,7 @@ read_uisp:
 
 build_8:
 	for MOTOR_ID in 0 1 2 3 4 5 6 7; do \
-		make clean; \
+		make clean_solo; \
 		export MOTOR_ID; \
 		make all || exit -1; \
 		for target in $(ALL_TARGETS); do \

@@ -96,6 +96,8 @@
 #include "arctictiger.inc"	; Arctic Tiger 30A ESC with all nFETs (ICP PWM)
 #elif defined(birdie70a_esc)
 #include "birdie70a.inc"	; Birdie 70A with all nFETs (INT0 PWM)
+#elif defined(blueesc_esc)
+#include "blueesc.inc"	; Blue Robotics BlueESC (ICP PWM, I2C)
 #elif defined(mkblctrl1_esc)
 #include "mkblctrl1.inc"	; MK BL-Ctrl v1.2 (ICP PWM, I2C, UART, high side PWM, sense hack)
 #elif defined(bs_esc)
@@ -118,6 +120,8 @@
 #include "hm135a.inc"		; Hacker/Jeti Master 135-O-F5B 135A inverted-PWM-opto (INT0 PWM)
 #elif defined(hxt200a_esc)
 #include "hxt200a.inc"		; HexTronik F3J HXT200A HV ESC (INT0 PWM, I2C, UART)
+#elif defined(jrhdrone_esc)
+#include "jrhdrone.inc"	; JRH Mini-Drone v1.0
 #elif defined(kda_esc)
 #include "kda.inc"		; Keda/Multistar 12A, 20A, 30A (original) (inverted INT0 PWM)
 #elif defined(kda_8khz_esc)
